@@ -75,6 +75,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  const handleClearAllData = async () => {
+    if (window.confirm('Are you sure you want to clear all responses, chat messages, and game scores? This will create a completely fresh start for Pratiksha.')) {
+      sounds.playTap();
+      setIsLoading(true);
+      await db.clearAllData();
+      await loadData();
+      setIsLoading(false);
+      alert('All responses and telemetry data have been cleared successfully.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-midnight-950 text-ivory-100 flex flex-col font-sans">
       
@@ -499,6 +510,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   onChange={(e) => setInteractionsEnabled(e.target.checked)}
                   className="w-4 h-4 text-champagne-500 rounded bg-midnight-900 border-midnight-700 focus:ring-0"
                 />
+              </div>
+
+              <div className="pt-3 border-t border-midnight-800 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-roseaccent-300">Reset Experience Data</h4>
+                  <p className="text-[11px] text-ivory-400">Wipe all responses, answers, and chat history for a fresh start</p>
+                </div>
+                <button
+                  onClick={handleClearAllData}
+                  className="px-3 py-1.5 rounded-xl bg-roseaccent-600/20 border border-roseaccent-600/40 text-roseaccent-300 hover:bg-roseaccent-600/30 text-xs font-semibold transition"
+                >
+                  Clear All Data
+                </button>
               </div>
             </div>
           </div>

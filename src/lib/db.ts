@@ -210,5 +210,23 @@ export const db = {
       return null;
     }
     return data;
+  },
+
+  // ----------------------------------------------------------------------------
+  // 5. RESET / CLEAR DATA (OWNER CONTROL)
+  // ----------------------------------------------------------------------------
+  async clearAllData(): Promise<boolean> {
+    localStorage.removeItem('vault_interaction_responses');
+    localStorage.removeItem('vault_game_results');
+    localStorage.removeItem('chat_messages_pratiksha-main-convo');
+    localStorage.removeItem('story_progress_pratiksha-user');
+
+    if (isSupabaseConfigured && supabase) {
+      const tables = ['interaction_responses', 'messages', 'game_results', 'story_progress'];
+      for (const t of tables) {
+        await supabase.from(t).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      }
+    }
+    return true;
   }
 };
