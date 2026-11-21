@@ -87,8 +87,15 @@ export const ChapterView: React.FC<ChapterViewProps> = ({
           {/* Photo / Video / GIF Frame */}
           <div className="w-full h-56 sm:h-64 rounded-2xl overflow-hidden bg-slate-900 relative shadow-inner">
             {(() => {
-              const mediaUrl = chapter.video_url || chapter.cover_image;
-              const isVideo = chapter.media_type === 'video' || Boolean(chapter.video_url) || /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(mediaUrl);
+              const rawUrl = chapter.video_url || chapter.cover_image;
+              const isVideo = chapter.media_type === 'video' || Boolean(chapter.video_url) || /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(rawUrl);
+
+              let mediaUrl = rawUrl;
+              if (rawUrl && rawUrl.startsWith('/') && !rawUrl.startsWith('//')) {
+                const base = import.meta.env.BASE_URL || '/';
+                const cleanBase = base.endsWith('/') ? base : `${base}/`;
+                mediaUrl = `${cleanBase}${rawUrl.slice(1)}`;
+              }
 
               if (isVideo) {
                 return (

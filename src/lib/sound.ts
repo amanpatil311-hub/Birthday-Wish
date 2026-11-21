@@ -22,7 +22,9 @@ class SoundManager {
         this.bgAudio.src = savedAudio;
       } else {
         // Default to public audio or fallback
-        this.bgAudio.src = '/thousand_years.mp3';
+        const base = import.meta.env.BASE_URL || '/';
+        const cleanBase = base.endsWith('/') ? base : `${base}/`;
+        this.bgAudio.src = `${cleanBase}thousand_years.mp3`;
       }
 
       this.bgAudio.onerror = () => {
