@@ -88,7 +88,7 @@ export const db = {
 
     const { data, error } = await supabase
       .from('interaction_responses')
-      .select('*, story_interactions(title, prompt, chapter_id)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -140,7 +140,7 @@ export const db = {
 
     const { data, error } = await supabase
       .from('game_results')
-      .select('*, games(title, chapter_id)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
