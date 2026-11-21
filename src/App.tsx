@@ -188,10 +188,18 @@ export default function App() {
   if (isAdminOpen) {
     return (
       <AdminDashboard
-        onBackToStory={() => setIsAdminOpen(false)}
+        onBackToStory={() => {
+          setIsAdminOpen(false);
+          if (window.location.hash === '#admin') {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        }}
         onLogout={() => {
           sessionStorage.removeItem('owner_authenticated');
           setIsAdminOpen(false);
+          if (window.location.hash === '#admin') {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
         }}
       />
     );
@@ -208,7 +216,12 @@ export default function App() {
         />
         <OwnerLoginModal
           isOpen={showOwnerLogin}
-          onClose={() => setShowOwnerLogin(false)}
+          onClose={() => {
+            setShowOwnerLogin(false);
+            if (window.location.hash === '#admin') {
+              window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+          }}
           onSuccess={() => {
             setShowOwnerLogin(false);
             setIsAdminOpen(true);
@@ -556,7 +569,12 @@ export default function App() {
       {/* Owner Login Modal */}
       <OwnerLoginModal
         isOpen={showOwnerLogin}
-        onClose={() => setShowOwnerLogin(false)}
+        onClose={() => {
+          setShowOwnerLogin(false);
+          if (window.location.hash === '#admin') {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        }}
         onSuccess={() => {
           setShowOwnerLogin(false);
           setIsAdminOpen(true);
