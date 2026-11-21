@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    overscroll-behavior-y: contain;
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(224, 135, 152, 0.25);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(224, 135, 152, 0.45);
+  }
+}
+
+/* Glassmorphism surfaces */
+.glass-panel {
+  background: rgba(22, 30, 51, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(241, 226, 198, 0.1);
+}
+
+.glass-card {
+  background: rgba(16, 23, 40, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 131, 148, 0.12);
+}
+
+.glow-champagne {
+  box-shadow: 0 0 25px -5px rgba(230, 207, 163, 0.15);
+}
+
+.glow-rose {
+  box-shadow: 0 0 30px -5px rgba(227, 130, 149, 0.2);
+}
+
+/* Mobile safe area padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 16px);
+}

@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.env.local
+.vercel
+cloudflared.exe
+*.log
+.agents
+birthday-website
+test-anim
+clip15.mp3
