@@ -45,7 +45,9 @@ export default function App() {
 
     // Check if accessing admin route
     const checkAdminHash = () => {
-      if (window.location.hash === '#admin' || window.location.search.includes('admin')) {
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      if (hash.includes('admin') || search.includes('admin')) {
         const isOwner = sessionStorage.getItem('owner_authenticated') === 'true';
         if (isOwner) {
           setIsAdminOpen(true);
