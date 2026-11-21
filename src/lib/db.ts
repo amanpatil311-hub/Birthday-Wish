@@ -228,5 +228,22 @@ export const db = {
       }
     }
     return true;
+  },
+
+  // ----------------------------------------------------------------------------
+  // 6. VISITOR TELEMETRY & LIVE PRESENCE TRACKING
+  // ----------------------------------------------------------------------------
+  async logVisitorEvent(eventType: string, details: string): Promise<void> {
+    // Never track the owner
+    if (sessionStorage.getItem('owner_authenticated') === 'true') return;
+    const hash = window.location.hash.toLowerCase();
+    const search = window.location.search.toLowerCase();
+    if (hash.includes('admin') || search.includes('admin')) return;
+
+    try {
+      await this.submitResponse(eventType, 'pratiksha-user', details);
+    } catch (e) {
+      console.warn('Telemetry log error:', e);
+    }
   }
 };

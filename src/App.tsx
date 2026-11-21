@@ -6,6 +6,7 @@ import confetti from 'canvas-confetti';
 import { StoryUniverse } from './components/story/StoryUniverse';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { OwnerLoginModal } from './components/auth/OwnerLoginModal';
+import { db } from './lib/db';
 
 export default function App() {
   const [password, setPassword] = useState('');
@@ -63,6 +64,17 @@ export default function App() {
     sounds.onMusicStateChange((playing) => {
       setIsMusicPlaying(playing);
     });
+
+    // Track recipient opening the link (runs once per browser session)
+    const isOwner = sessionStorage.getItem('owner_authenticated') === 'true' ||
+                    window.location.hash.toLowerCase().includes('admin') ||
+                    window.location.search.toLowerCase().includes('admin');
+    if (!isOwner && !sessionStorage.getItem('has_logged_visit')) {
+      sessionStorage.setItem('has_logged_visit', 'true');
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      const device = isMobile ? (navigator.userAgent.includes('iPhone') ? 'iPhone 📱' : 'Mobile Phone 📱') : 'Computer 💻';
+      db.logVisitorEvent('link-opened', `Opened the website on ${device}`);
+    }
 
     return () => {
       window.removeEventListener('hashchange', checkAdminHash);
@@ -136,6 +148,7 @@ export default function App() {
           setIsUnlocked(true);
           setIsMagicalUnlocking(false);
           sessionStorage.setItem('vault_unlocked', 'true');
+          db.logVisitorEvent('vault-unlocked', 'Unlocked the vault with passcode 1903 🔓');
           // Start background music (studio MP3 from Google Drive)
           sounds.play();
         }, 1200);

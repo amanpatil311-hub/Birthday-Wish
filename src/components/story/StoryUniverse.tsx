@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { INITIAL_CHAPTERS } from '../../data/chapters';
 import { ChapterView } from './ChapterView';
 import { Lock, Volume2, VolumeX, MessageCircleHeart, Sparkles, X } from 'lucide-react';
 import { sounds } from '../../lib/sound';
 import { EmbeddedChat } from '../chat/EmbeddedChat';
+import { db } from '../../lib/db';
 
 interface StoryUniverseProps {
   onLock: () => void;
@@ -27,6 +28,11 @@ export const StoryUniverse: React.FC<StoryUniverseProps> = ({
 
   // Chat unlocks at Chapter 04 (index 3) and persists thereafter
   const isChatUnlocked = currentChapterIndex >= 3;
+
+  useEffect(() => {
+    const chapterName = chapters[currentChapterIndex]?.title || `Chapter ${currentChapterIndex + 1}`;
+    db.logVisitorEvent('chapter-viewed', `Reading Chapter 0${currentChapterIndex + 1}: ${chapterName} 📖`);
+  }, [currentChapterIndex]);
 
   const handleNext = () => {
     if (currentChapterIndex < chapters.length - 1) {

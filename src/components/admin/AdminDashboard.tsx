@@ -15,7 +15,11 @@ import {
   ShieldCheck,
   RefreshCw,
   LogOut,
-  Heart
+  Heart,
+  Eye,
+  Smartphone,
+  KeyRound,
+  BookOpen
 } from 'lucide-react';
 import { db } from '../../lib/db';
 import { sounds } from '../../lib/sound';
@@ -44,6 +48,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [interactionsEnabled, setInteractionsEnabled] = useState(true);
 
   const conversationId = 'pratiksha-main-convo';
+
+  // Telemetry & Presence computations
+  const openedEvent = answers.find(a => a.interaction_id === 'link-opened');
+  const unlockedEvent = answers.find(a => a.interaction_id === 'vault-unlocked');
+  const chapterEvents = answers.filter(a => a.interaction_id === 'chapter-viewed');
+  const latestChapterEvent = chapterEvents.length > 0 ? chapterEvents[0] : null;
+  const actualAnswers = answers.filter(
+    a => !['link-opened', 'vault-unlocked', 'chapter-viewed'].includes(a.interaction_id)
+  );
+  const telemetryEvents = answers.filter(
+    a => ['link-opened', 'vault-unlocked', 'chapter-viewed'].includes(a.interaction_id)
+  );
 
   const loadData = async () => {
     setIsLoading(true);
@@ -171,9 +187,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         >
           <HelpCircle className="w-3.5 h-3.5" />
           <span>Submitted Answers</span>
-          {answers.length > 0 && (
+          {actualAnswers.length > 0 && (
             <span className="ml-1 px-1.5 py-0.2 rounded-full bg-midnight-800 text-champagne-300 text-[10px]">
-              {answers.length}
+              {actualAnswers.length}
             </span>
           )}
         </button>
@@ -224,9 +240,81 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {activeTab === 'overview' && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-serif font-bold text-ivory-50">Story & Interaction Overview</h2>
-              <p className="text-xs text-ivory-400">Live telemetry and metrics from Pratiksha's experience.</p>
+              <h2 className="text-xl font-serif font-bold text-ivory-50">Story & Visitor Overview</h2>
+              <p className="text-xs text-ivory-400">Live telemetry and real-time presence from Pratiksha's experience.</p>
             </div>
+
+            {/* Live Presence Banner */}
+            {openedEvent ? (
+              <div className="p-4 rounded-3xl bg-gradient-to-r from-emerald-950/80 via-midnight-900/90 to-emerald-950/80 border border-emerald-500/40 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="flex items-start space-x-3.5 relative z-10">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                    <Eye className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1.5" />
+                        LIVE VISITOR DETECTED
+                      </span>
+                      <span className="text-[10px] text-ivory-400/70">
+                        {new Date(openedEvent.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      </span>
+                    </div>
+                    <h3 className="font-serif font-bold text-base text-ivory-50 mt-1">
+                      Pratiksha opened your birthday link! 🎉
+                    </h3>
+                    <p className="text-xs text-ivory-300 mt-0.5">
+                      {openedEvent.response_value}
+                    </p>
+
+                    <div className="mt-2.5 pt-2 border-t border-emerald-500/20 flex flex-wrap items-center gap-2 text-[11px]">
+                      {unlockedEvent ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                          <KeyRound className="w-3 h-3 mr-1 text-emerald-400" />
+                          Vault Unlocked with passcode 1903 ({new Date(unlockedEvent.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                          <KeyRound className="w-3 h-3 mr-1 text-amber-400" />
+                          Currently on Lock Screen (Waiting for passcode 1903)
+                        </span>
+                      )}
+
+                      {latestChapterEvent && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-champagne-400/10 text-champagne-300 border border-champagne-400/20">
+                          <BookOpen className="w-3 h-3 mr-1 text-champagne-400" />
+                          {latestChapterEvent.response_value}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 rounded-3xl bg-midnight-900/60 border border-champagne-400/20 relative overflow-hidden">
+                <div className="flex items-center space-x-3.5">
+                  <div className="w-10 h-10 rounded-2xl bg-midnight-800 border border-midnight-700 flex items-center justify-center text-ivory-400 shrink-0">
+                    <Smartphone className="w-5 h-5 text-champagne-400/60" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-midnight-800 text-ivory-400 border border-midnight-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 mr-1.5 animate-pulse" />
+                        STANDBY FOR VISITOR
+                      </span>
+                    </div>
+                    <h3 className="font-serif font-bold text-sm text-ivory-100 mt-1">
+                      Waiting for Pratiksha to open the link 💌
+                    </h3>
+                    <p className="text-xs text-ivory-400 mt-0.5">
+                      The moment she taps the link on her phone, this dashboard will update live with her device and exact timestamp!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -242,7 +330,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-champagne-400 block mb-1">
                   Answers Received
                 </span>
-                <span className="text-2xl font-bold font-serif text-ivory-50">{answers.length}</span>
+                <span className="text-2xl font-bold font-serif text-ivory-50">{actualAnswers.length}</span>
                 <span className="text-[10px] text-ivory-400 block mt-1">Questions answered</span>
               </div>
 
@@ -256,12 +344,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="glass-card p-4 rounded-2xl border border-emerald-500/20 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">
-                  Story Status
+                  Recipient Status
                 </span>
-                <span className="text-base font-bold text-emerald-400 flex items-center justify-center mt-2">
-                  <ShieldCheck className="w-4 h-4 mr-1" /> Active
+                <span className="text-sm font-bold text-emerald-400 flex items-center justify-center mt-2">
+                  {unlockedEvent ? (
+                    <>
+                      <ShieldCheck className="w-4 h-4 mr-1 text-emerald-400" /> In Story
+                    </>
+                  ) : openedEvent ? (
+                    <>
+                      <Smartphone className="w-4 h-4 mr-1 text-amber-400" /> At Lock Screen
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-4 h-4 mr-1 text-ivory-400" /> Waiting...
+                    </>
+                  )}
                 </span>
-                <span className="text-[10px] text-ivory-400 block mt-1">Passcode: 1903</span>
+                <span className="text-[10px] text-ivory-400 block mt-1 truncate">
+                  {latestChapterEvent
+                    ? String(latestChapterEvent.response_value).replace(' 📖', '')
+                    : openedEvent
+                    ? 'Passcode pending'
+                    : 'Unopened'}
+                </span>
               </div>
             </div>
 
@@ -269,29 +375,63 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="glass-panel p-5 rounded-3xl border border-champagne-400/20">
               <h3 className="font-serif font-bold text-sm text-ivory-100 mb-3 flex items-center">
                 <Sparkles className="w-4 h-4 text-champagne-400 mr-1.5" />
-                Recent Interactions
+                Recent Activity & Interactions
               </h3>
 
               {answers.length === 0 && messages.length === 0 ? (
                 <div className="text-center py-8 text-xs text-ivory-400/70">
-                  <p>No answers or messages submitted yet.</p>
+                  <p>No answers or activity recorded yet.</p>
                   <p className="text-[11px] text-champagne-300 mt-1">
                     When Pratiksha explores the chapters and answers questions, they will appear here in real time!
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
-                  {answers.slice(0, 5).map((ans) => (
-                    <div key={ans.id} className="p-3 rounded-xl bg-midnight-900/80 border border-midnight-700 flex justify-between items-center text-xs">
-                      <div>
-                        <span className="font-semibold text-champagne-300 block">{ans.interaction_id}</span>
-                        <span className="text-ivory-200">Answer: "{String(ans.response_value)}"</span>
+                  {answers.slice(0, 7).map((ans) => {
+                    const isOpened = ans.interaction_id === 'link-opened';
+                    const isUnlocked = ans.interaction_id === 'vault-unlocked';
+                    const isChapter = ans.interaction_id === 'chapter-viewed';
+
+                    return (
+                      <div key={ans.id} className="p-3 rounded-xl bg-midnight-900/80 border border-midnight-700 flex justify-between items-center text-xs">
+                        <div className="flex items-center space-x-2.5">
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 ${
+                            isOpened
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : isUnlocked
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                              : isChapter
+                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                              : 'bg-roseaccent-500/20 text-roseaccent-300 border border-roseaccent-500/30'
+                          }`}>
+                            {isOpened ? <Smartphone className="w-3.5 h-3.5" /> :
+                             isUnlocked ? <KeyRound className="w-3.5 h-3.5" /> :
+                             isChapter ? <BookOpen className="w-3.5 h-3.5" /> :
+                             <Heart className="w-3.5 h-3.5" />}
+                          </div>
+                          <div>
+                            <span className={`font-semibold block ${
+                              isOpened
+                                ? 'text-blue-300'
+                                : isUnlocked
+                                ? 'text-emerald-300'
+                                : isChapter
+                                ? 'text-purple-300'
+                                : 'text-champagne-300'
+                            }`}>
+                              {isOpened ? 'Link Opened' : isUnlocked ? 'Vault Unlocked' : isChapter ? 'Chapter Viewed' : ans.interaction_id}
+                            </span>
+                            <span className="text-ivory-200">
+                              {isOpened || isUnlocked || isChapter ? String(ans.response_value) : `"${String(ans.response_value)}"`}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-ivory-400/60 ml-2 whitespace-nowrap">
+                          {new Date(ans.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <span className="text-[10px] text-ivory-400/60">
-                        {new Date(ans.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -382,20 +522,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* TAB 3: SUBMITTED ANSWERS */}
         {/* ==================================================== */}
         {activeTab === 'answers' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
               <h2 className="text-xl font-serif font-bold text-ivory-50">Submitted Question Answers</h2>
-              <p className="text-xs text-ivory-400">All responses submitted by Pratiksha across chapters.</p>
+              <p className="text-xs text-ivory-400">All responses submitted by Pratiksha to story prompts.</p>
             </div>
 
-            {answers.length === 0 ? (
+            {actualAnswers.length === 0 ? (
               <div className="glass-panel p-8 rounded-3xl border border-champagne-400/20 text-center text-xs text-ivory-400">
                 <HelpCircle className="w-8 h-8 text-champagne-400/40 mx-auto mb-2" />
                 <p>No question responses recorded yet.</p>
+                <p className="text-[11px] text-champagne-300 mt-1">
+                  When Pratiksha answers any story question or writes a memory, it will appear here!
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {answers.map((ans) => (
+                {actualAnswers.map((ans) => (
                   <div key={ans.id} className="glass-card p-4 rounded-2xl border border-champagne-400/20">
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-roseaccent-300">
@@ -411,6 +554,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </p>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Visitor Journey & Activity Timeline */}
+            {telemetryEvents.length > 0 && (
+              <div className="pt-6 border-t border-midnight-800">
+                <h3 className="font-serif font-bold text-sm text-ivory-100 mb-3 flex items-center">
+                  <Eye className="w-4 h-4 text-emerald-400 mr-1.5" />
+                  Visitor Journey & Activity Timeline
+                </h3>
+                <div className="space-y-2">
+                  {telemetryEvents.map((evt) => {
+                    const isOpened = evt.interaction_id === 'link-opened';
+                    const isUnlocked = evt.interaction_id === 'vault-unlocked';
+
+                    return (
+                      <div key={evt.id} className="p-3 rounded-xl bg-midnight-900/60 border border-midnight-800 flex justify-between items-center text-xs">
+                        <div className="flex items-center space-x-2.5">
+                          <span className={`w-2 h-2 rounded-full ${
+                            isOpened ? 'bg-blue-400' : isUnlocked ? 'bg-emerald-400' : 'bg-purple-400'
+                          }`} />
+                          <span className="text-ivory-200 font-medium">{String(evt.response_value)}</span>
+                        </div>
+                        <span className="text-[10px] text-ivory-400/60 ml-2 whitespace-nowrap">
+                          {new Date(evt.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
