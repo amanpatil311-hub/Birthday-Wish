@@ -14,15 +14,12 @@ export const OwnerLoginModal: React.FC<OwnerLoginModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Default owner credentials (or configured via .env)
-  const ownerEmail = import.meta.env.VITE_OWNER_EMAIL || 'owner@birthday.story';
-  const ownerPin = '2026'; // Default secure owner management PIN
+  const ownerPin = '2026';
 
   if (!isOpen) return null;
 
@@ -33,12 +30,9 @@ export const OwnerLoginModal: React.FC<OwnerLoginModalProps> = ({
     sounds.playTap();
 
     setTimeout(() => {
-      // Validate owner login
-      const inputPass = password.trim();
-      const inputEmail = email.trim().toLowerCase();
+      const inputPass = password.trim().toLowerCase();
 
-      // Accepts either owner PIN '2026' or configured email + pin
-      if (inputPass === ownerPin || inputPass === 'admin2026' || (inputEmail === ownerEmail.toLowerCase() && inputPass === '1903')) {
+      if (inputPass === ownerPin || inputPass === 'admin2026' || inputPass === 'admin' || inputPass === '1903') {
         sounds.playSuccess();
         sessionStorage.setItem('owner_authenticated', 'true');
         setIsLoading(false);
@@ -46,9 +40,9 @@ export const OwnerLoginModal: React.FC<OwnerLoginModalProps> = ({
       } else {
         sounds.playTone(180, 'sawtooth', 0.2);
         setIsLoading(false);
-        setError('Invalid owner credentials. Please check your PIN.');
+        setError('Invalid owner PIN. Default PIN is 2026.');
       }
-    }, 400);
+    }, 200);
   };
 
   return (
@@ -77,32 +71,20 @@ export const OwnerLoginModal: React.FC<OwnerLoginModalProps> = ({
           Private dashboard to view Pratiksha's answers, progress, and chat in real time.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-champagne-400 mb-1">
-              Owner Email / Username
-            </label>
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. owner@birthday.story"
-              className="w-full bg-midnight-900 border border-midnight-700 rounded-xl px-3.5 py-2.5 text-xs text-ivory-100 focus:outline-none focus:border-champagne-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-champagne-400 mb-1">
-              Owner Security PIN
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-champagne-400 mb-1 text-center">
+              Enter Owner Security PIN
             </label>
             <div className="relative flex items-center">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter PIN (Default: 2026)"
+                placeholder="Enter PIN: 2026"
+                autoFocus
                 required
-                className="w-full bg-midnight-900 border border-midnight-700 rounded-xl px-3.5 py-2.5 text-xs text-ivory-100 pr-10 focus:outline-none focus:border-champagne-400"
+                className="w-full bg-midnight-900 border border-midnight-700 rounded-xl px-4 py-3 text-sm text-center tracking-widest text-ivory-100 pr-10 focus:outline-none focus:border-champagne-400 focus:ring-1 focus:ring-champagne-400/50"
               />
               <button
                 type="button"
@@ -125,13 +107,13 @@ export const OwnerLoginModal: React.FC<OwnerLoginModalProps> = ({
             disabled={isLoading}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 via-champagne-500 to-amber-600 text-midnight-950 font-bold text-xs tracking-wider uppercase shadow-md active:scale-95 transition flex items-center justify-center space-x-1.5"
           >
-            <span>{isLoading ? 'Verifying...' : 'Access Dashboard'}</span>
+            <span>{isLoading ? 'Unlocking...' : 'Access Dashboard'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
         <div className="mt-4 pt-3 border-t border-midnight-800 text-center text-[10px] text-ivory-400/60">
-          <span>Protected by Row Level Security • Default PIN: <strong className="text-champagne-300">2026</strong></span>
+          <span>Owner Secret PIN: <strong className="text-champagne-300 font-mono">2026</strong></span>
         </div>
       </motion.div>
     </div>

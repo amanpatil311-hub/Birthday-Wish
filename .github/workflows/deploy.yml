@@ -34,6 +34,11 @@ jobs:
         run: npm ci
 
       - name: Build project
+        env:
+          VITE_SUPABASE_URL: https://smctdwowywfbqhwehcqs.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_VOfT61dr94mZ5YPFEeNT_w_AWl80_ch
+          VITE_OWNER_EMAIL: owner@birthday.story
+          VITE_RECIPIENT_ACCESS_CODE: '1903'
         run: npm run build
 
       - name: Configure GitHub Pages
