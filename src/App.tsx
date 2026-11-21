@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, KeyRound, Sparkles, Volume2, VolumeX, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
 import { sounds } from './lib/sound';
@@ -6,13 +6,6 @@ import confetti from 'canvas-confetti';
 import { StoryUniverse } from './components/story/StoryUniverse';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { OwnerLoginModal } from './components/auth/OwnerLoginModal';
-
-declare global {
-  interface Window {
-    onYouTubeIframeAPIReady: () => void;
-    YT: any;
-  }
-}
 
 export default function App() {
   const [password, setPassword] = useState('');
@@ -28,8 +21,6 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [trackTitle, setTrackTitle] = useState('A Thousand Years');
   const [trackArtist, setTrackArtist] = useState('Christina Perri');
-  const ytPlayerRef = useRef<any>(null);
-  const [ytReady, setYtReady] = useState(false);
 
   // Accepted passcodes: primary official date 1903 (DD/MM) + variants
   const envCode = import.meta.env.VITE_RECIPIENT_ACCESS_CODE || '1903';
@@ -70,49 +61,6 @@ export default function App() {
     sounds.onMusicStateChange((playing) => {
       setIsMusicPlaying(playing);
     });
-
-    // Initialize YouTube Player for Christina Perri - A Thousand Years (NZGHXy1IAHM)
-    const initYT = () => {
-      if (window.YT && window.YT.Player) {
-        try {
-          ytPlayerRef.current = new window.YT.Player('yt-player-container', {
-            height: '1',
-            width: '1',
-            videoId: 'NZGHXy1IAHM',
-            playerVars: {
-              autoplay: 0,
-              controls: 0,
-              loop: 1,
-              playlist: 'NZGHXy1IAHM',
-              playsinline: 1,
-              origin: window.location.origin
-            },
-            events: {
-              onReady: () => {
-                setYtReady(true);
-                ytPlayerRef.current.setVolume(75);
-              },
-              onStateChange: (event: any) => {
-                // 1 = playing, 2 = paused
-                if (event.data === 1) {
-                  setIsMusicPlaying(true);
-                } else if (event.data === 2 || event.data === 0) {
-                  setIsMusicPlaying(false);
-                }
-              }
-            }
-          });
-        } catch (e) {
-          console.warn('YT Player init error:', e);
-        }
-      }
-    };
-
-    if (window.YT && window.YT.Player) {
-      initYT();
-    } else {
-      window.onYouTubeIframeAPIReady = initYT;
-    }
 
     return () => {
       window.removeEventListener('hashchange', checkAdminHash);
@@ -214,12 +162,7 @@ export default function App() {
   };
 
   const toggleMusic = () => {
-    sounds.toggleMusic().catch(() => {
-      if (ytPlayerRef.current && ytReady) {
-        ytPlayerRef.current.playVideo();
-        setIsMusicPlaying(true);
-      }
-    });
+    sounds.toggleMusic();
   };
 
   const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -257,8 +200,6 @@ export default function App() {
   if (isUnlocked) {
     return (
       <>
-        {/* Hidden YouTube Audio Player */}
-        <div id="yt-player-container" className="hidden pointer-events-none opacity-0 fixed -top-96" />
         <StoryUniverse
           onLock={handleLockAgain}
           isMusicPlaying={isMusicPlaying}
@@ -279,9 +220,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-midnight-950 text-ivory-100 flex flex-col items-center justify-between p-4 sm:p-6 relative overflow-hidden select-none">
-      
-      {/* Hidden YouTube Audio Player for Christina Perri - A Thousand Years */}
-      <div id="yt-player-container" className="hidden pointer-events-none opacity-0 fixed -top-96" />
       
       {/* Cinematic Ambient Atmosphere Glows */}
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-roseaccent-600/10 rounded-full blur-[120px] pointer-events-none" />
